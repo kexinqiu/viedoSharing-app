@@ -16,6 +16,8 @@ public class UserApi {
     @Autowired
     private UserService userService;
 
+    //user signup:
+
     @GetMapping("/rsa-pks")
     public JsonResponse<String> getRsaPulicKey(){
         String pk = RSAUtil.getPublicKeyStr();
@@ -27,4 +29,13 @@ public class UserApi {
         userService.addUser(user);
         return JsonResponse.success();
     }
+
+    //user login:
+    @PostMapping("/user-tokens")
+    public JsonResponse<String> login(@RequestBody User user) throws Exception{
+        String token = userService.login(user);
+        return new JsonResponse<>(token);
+    }
+
+
 }
