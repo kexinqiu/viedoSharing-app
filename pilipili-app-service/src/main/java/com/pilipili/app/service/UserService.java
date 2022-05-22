@@ -64,13 +64,13 @@ public class UserService {
         return userDao.getUserByPhone(phone);
     }
 
-    public String login(User user) {
+    public String login(User user) throws Exception {
         String phone = user.getPhone() == null ? "" : user.getPhone();
         String email = user.getEmail() == null ? "" : user.getEmail();
         if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
             throw new ConditionException("参数异常！");
         }
-        User dbUser = userDao.getUserByPhoneOrEmail(phone, email);
+        User dbUser = userDao.getUserByPhone(phone);
         if(dbUser == null){
             throw new ConditionException("当前用户不存在！");
         }
@@ -87,7 +87,13 @@ public class UserService {
             throw new ConditionException("密码错误！");
         }
         //生成用户令牌返回前端
-        TokenUtil tokenUtil = new TokenUtil();
-        return tokenUtil.generateToken(dbUser.getId());
+        return TokenUtil.generateToken(dbUser.getId());
+    }
+
+    public User getUserInfo(Long userId) {
+        User user = userDao.getUserById(userId);
+        UserInfo userInfo = userDao.getUserInfoByUserId(userId);
+        user.setUserInfo(userInfo);
+        return user;
     }
 }

@@ -1,5 +1,6 @@
 package com.pilipili.app.api;
 
+import com.pilipili.app.api.support.UserSupport;
 import com.pilipili.app.domain.JsonResponse;
 import com.pilipili.app.domain.User;
 import com.pilipili.app.service.UserService;
@@ -15,6 +16,16 @@ public class UserApi {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserSupport userSupport;
+
+    @GetMapping("/users")
+    public JsonResponse<User> getUserInfo(){
+        Long userId = userSupport.getCurrentUserId();
+        User user = userService.getUserInfo(userId);
+        return new JsonResponse<>(user);
+    }
 
     //user signup:
 

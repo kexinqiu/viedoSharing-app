@@ -30,7 +30,7 @@
             )
     </insert>
 
-    <insert id="addUserInfo" parameterType="com.imooc.bilibili.domain.UserInfo">
+    <insert id="addUserInfo" parameterType="com.pilipili.app.domain.UserInfo">
         insert into
             t_user_info(
                 userId,
@@ -51,5 +51,22 @@
                 )
     </insert>
 
+    <select id="getUserById" parameterType="java.lang.Long" resultType="com.pilipili.app.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+
+    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.pilipili.app.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId = #{userId}
+    </select>
 
 </mapper>
