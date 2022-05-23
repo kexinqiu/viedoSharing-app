@@ -25,4 +25,14 @@ public class UserSupport {
         //this.verifyRefreshToken(userId);
         return userId;
     }
+
+    public String getCurrentUserPhone() {
+        //获取token
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+        String phone = request.getHeader("phone");
+
+        //this.verifyRefreshToken(userId);
+        return phone;
+    }
 }

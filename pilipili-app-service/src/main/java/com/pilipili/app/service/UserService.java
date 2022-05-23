@@ -1,7 +1,9 @@
 package com.pilipili.app.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import com.pilipili.app.dao.UserDao;
+import com.pilipili.app.domain.PageResult;
 import com.pilipili.app.domain.User;
 import com.pilipili.app.domain.UserInfo;
 import com.pilipili.app.domain.constant.UserConstant;
@@ -12,7 +14,10 @@ import com.pilipili.app.service.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -70,10 +75,11 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
             throw new ConditionException("参数异常！");
         }
-        User dbUser = userDao.getUserByPhone(phone);
+        User dbUser = userDao.getUserByPhoneOrEmail(phone, email);
         if(dbUser == null){
             throw new ConditionException("当前用户不存在！");
         }
+
         String password = user.getPassword();
         String rawPassword;
         try{
@@ -95,5 +101,46 @@ public class UserService {
         UserInfo userInfo = userDao.getUserInfoByUserId(userId);
         user.setUserInfo(userInfo);
         return user;
+    }
+
+    public void updateUsers(User user) throws Exception{
+        Long id = user.getId();
+        User dbUser = userDao.getUserById(id);
+        if(dbUser == null){
+            throw new ConditionException("用户不存在！");
+        }
+        if(!StringUtils.isNullOrEmpty(user.getPassword())){
+            String rawPassword = RSAUtil.decrypt(user.getPassword());
+            String md5Password = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+            user.setPassword(md5Password);
+        }
+        user.setUpdateTime(new Date());
+        userDao.updateUsers(user);
+    }
+
+    public void updateUserInfos(UserInfo userInfo) {
+        userInfo.setUpdateTime(new Date());
+        userDao.updateUserInfos(userInfo);
+    }
+
+    public User getUserById(Long followingId) {
+        return userDao.getUserById(followingId);
+    }
+
+    public List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.getUserInfoByUserIds(userIdList);
+    }
+
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer no = params.getInteger("no");
+        Integer size = params.getInteger("size");
+        params.put("start", (no-1)*size);
+        params.put("limit", size);
+        Integer total = userDao.pageCountUserInfos(params);
+        List<UserInfo> list = new ArrayList<>();
+        if(total > 0){
+            list = userDao.pageListUserInfos(params);
+        }
+        return new PageResult<>(total, list);
     }
 }

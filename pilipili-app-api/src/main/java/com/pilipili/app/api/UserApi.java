@@ -1,15 +1,18 @@
 package com.pilipili.app.api;
 
+import com.alibaba.fastjson.JSONObject;
 import com.pilipili.app.api.support.UserSupport;
 import com.pilipili.app.domain.JsonResponse;
+import com.pilipili.app.domain.PageResult;
 import com.pilipili.app.domain.User;
+import com.pilipili.app.domain.UserInfo;
+import com.pilipili.app.service.UserFollowingService;
 import com.pilipili.app.service.UserService;
 import com.pilipili.app.service.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class UserApi {
@@ -20,10 +23,20 @@ public class UserApi {
     @Autowired
     private UserSupport userSupport;
 
+    @Autowired
+    private UserFollowingService userFollowingService;
+
     @GetMapping("/users")
     public JsonResponse<User> getUserInfo(){
         Long userId = userSupport.getCurrentUserId();
         User user = userService.getUserInfo(userId);
+        return new JsonResponse<>(user);
+    }
+
+    @GetMapping("/users-phone")
+    public JsonResponse<User> getUserByPhone(){
+        String phone = userSupport.getCurrentUserPhone();
+        User user = userService.getUserByPhone(phone);
         return new JsonResponse<>(user);
     }
 
@@ -47,6 +60,42 @@ public class UserApi {
         String token = userService.login(user);
         return new JsonResponse<>(token);
     }
+
+    @PutMapping("/users")
+    public JsonResponse<String> updateUsers(@RequestBody User user) throws Exception{
+        //userId从token中拿到更安全
+        Long userId = userSupport.getCurrentUserId();
+        user.setId(userId);
+        userService.updateUsers(user);
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/user-infos")
+    public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo){
+        Long userId = userSupport.getCurrentUserId();
+        userInfo.setUserId(userId);
+        userService.updateUserInfos(userInfo);
+        return JsonResponse.success();
+    }
+
+    @GetMapping("/user-infos")
+    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size, String nick){
+        Long userId = userSupport.getCurrentUserId();
+        JSONObject params = new JSONObject();
+        //current page
+        params.put("no", no);
+        //page's size
+        params.put("size", size);
+        params.put("nick", nick);
+        params.put("userId", userId);
+        PageResult<UserInfo> result = userService.pageListUserInfos(params);
+        if(result.getTotal() > 0){
+            List<UserInfo> checkedUserInfoList = userFollowingService.checkFollowingStatus(result.getList(), userId);
+            result.setList(checkedUserInfoList);
+        }
+        return new JsonResponse<>(result);
+    }
+
 
 
 }
