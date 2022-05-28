@@ -1,5 +1,6 @@
 package com.pilipili.app.service.util;
 
+import com.github.tobato.fastdfs.domain.fdfs.FileInfo;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
@@ -7,17 +8,17 @@ import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.pilipili.app.domain.exception.ConditionException;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class FastDFSUtil {
@@ -30,6 +31,10 @@ public class FastDFSUtil {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    //获取配置文件的值
+    @Value("${fdfs.http.storage-addr}")
+    private String httpFdfsStorageAddr;
 
     private static final String PATH_KEY = "path-key:";
 
@@ -165,4 +170,52 @@ public class FastDFSUtil {
     public void deleteFile(String filePath){
         fastFileStorageClient.deleteFile(filePath);
     }
+
+
+    public void viewVideoOnlineBySlices(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        String path) throws Exception{
+        //获取文件信息
+        FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
+        long totalFileSize = fileInfo.getFileSize();
+        //实际访问路径
+        String url = httpFdfsStorageAddr + path;
+        //枚举所有请求头名称
+        Enumeration<String> headerNames = request.getHeaderNames();
+
+        System.out.println(headerNames);
+
+        Map<String, Object> headers = new HashMap<>();
+        while(headerNames.hasMoreElements()){
+            //将请求头名称和请求头一一对应
+            String header = headerNames.nextElement();
+            headers.put(header, request.getHeader(header));
+        }
+        String rangeStr = request.getHeader("Range");
+        String[] range;
+        if(StringUtil.isNullOrEmpty(rangeStr)){
+            //totalFileSize-1最后一个值的位置
+            rangeStr = "bytes=0-" + (totalFileSize-1);
+        }
+        //将请求头中range信息分割 range：bytes=4554725-4167805
+        range = rangeStr.split("bytes=|-");
+        long begin = 0;
+        if(range.length >= 2){
+            begin = Long.parseLong(range[1]);
+        }
+        long end = totalFileSize-1;
+        if(range.length >= 3){
+            end = Long.parseLong(range[2]);
+        }
+        long len = (end - begin) + 1;
+        //响应头range： bytes 4554752-41670075/41670076
+        String contentRange = "bytes " + begin + "-" + end + "/" + totalFileSize;
+        response.setHeader("Content-Range", contentRange);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Type", "video/mp4");
+        response.setContentLength((int)len);
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        HttpUtil.get(url, headers, response);
+    }
+
 }
