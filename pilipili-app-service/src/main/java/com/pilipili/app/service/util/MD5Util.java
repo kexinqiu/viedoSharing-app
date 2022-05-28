@@ -1,7 +1,10 @@
 package com.pilipili.app.service.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -33,5 +36,22 @@ public class MD5Util {
 		} else {
 			return content.getBytes();
 		}
+	}
+
+	//获取文件md5加密后的字符串
+	public static String getFileMD5(MultipartFile file) throws Exception {
+		InputStream fis = file.getInputStream();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		//把输入流写入输出流
+		//用byte方便后续加密
+		byte[] buffer = new byte[1024];
+		int byteRead;
+		//如果fis.read(buffer)> 0， 说明还有内容没有读完
+		while((byteRead = fis.read(buffer)) > 0){
+			//写入输出流
+			baos.write(buffer, 0, byteRead);
+		}
+		fis.close();
+		return DigestUtils.md5Hex(baos.toByteArray());
 	}
 }

@@ -1,10 +1,13 @@
 package com.pilipili.app.dao;
 
 import com.alibaba.fastjson.JSONObject;
+import com.pilipili.app.domain.RefreshTokenDetail;
 import com.pilipili.app.domain.User;
 import com.pilipili.app.domain.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,4 +38,20 @@ public interface UserDao {
     Integer pageCountUserInfos(Map<String, Object> params);
 
     List<UserInfo> pageListUserInfos(JSONObject params);
+
+    Integer deleteRefreshToken(@Param("refreshToken") String refreshToken,
+                               @Param("userId") Long userId);
+
+    Integer addRefreshToken(@Param("refreshToken")String refreshToken,
+                            @Param("userId") Long userId,
+                            @Param("createTime") Date createTime);
+
+    RefreshTokenDetail getRefreshTokenDetail(String refreshToken);
+
+    List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList);
+
+    String getRefreshTokenByUserId(Long userId);
+
+    Integer deleteRefreshTokenByUserId(Long userId);
+
 }

@@ -3,6 +3,9 @@ package com.pilipili.app.api;
 import com.pilipili.app.api.support.UserSupport;
 import com.pilipili.app.domain.JsonResponse;
 import com.pilipili.app.domain.UserMoment;
+import com.pilipili.app.domain.annotation.ApiLimitedRole;
+import com.pilipili.app.domain.annotation.DataLimited;
+import com.pilipili.app.domain.constant.AuthRoleConstant;
 import com.pilipili.app.service.UserMomentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +24,8 @@ public class UserMomentsApi {
     @Autowired
     private UserSupport userSupport;
 
-//    @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
-//    @DataLimited
+    @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
+    @DataLimited
     @PostMapping("/user-moments")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoment userMoment) throws Exception {
         Long userId = userSupport.getCurrentUserId();
