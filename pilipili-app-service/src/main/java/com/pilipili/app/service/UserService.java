@@ -193,9 +193,9 @@ public class UserService {
         return TokenUtil.generateToken(userId);
     }
 
-//    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
-//        return userDao.batchGetUserInfoByUserIds(userIdList);
-//    }
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
+    }
 //
 //    public String getRefreshTokenByUserId(Long userId) {
 //        return userDao.getRefreshTokenByUserId(userId);
