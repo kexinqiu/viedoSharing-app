@@ -1,18 +1,14 @@
 package com.pilipili.app.api;
 
 import com.pilipili.app.api.support.UserSupport;
-import com.pilipili.app.domain.JsonResponse;
-import com.pilipili.app.domain.PageResult;
-import com.pilipili.app.domain.Video;
+import com.pilipili.app.domain.*;
 import com.pilipili.app.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 public class VideoApi {
@@ -53,4 +49,94 @@ public class VideoApi {
                                         String url) {
         videoService.viewVideoOnlineBySlices(request, response, url);
     }
+
+    /**
+     * 点赞视频
+     */
+    @PostMapping("/video-likes")
+    public JsonResponse<String> addVideoLike(@RequestParam Long videoId){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.addVideoLike(videoId, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 取消点赞视频
+     */
+    @DeleteMapping("/video-likes")
+    public JsonResponse<String> deleteVideoLike(@RequestParam Long videoId){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.deleteVideoLike(videoId, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查询视频点赞数量
+     */
+    @GetMapping("/video-likes")
+    public JsonResponse<Map<String, Object>> getVideoLikes(@RequestParam Long videoId){
+        Long userId = null;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch (Exception ignored){}
+        Map<String, Object> result = videoService.getVideoLikes(videoId, userId);
+        return new JsonResponse<>(result);
+    }
+
+    /**
+     * 收藏视频
+     */
+    @PostMapping("/video-collections")
+    public JsonResponse<String> addVideoCollection(@RequestBody VideoCollection videoCollection){
+        Long userId = userSupport.getCurrentUserId();
+         videoService.addVideoCollection(videoCollection, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 取消收藏视频
+     */
+    @DeleteMapping("/video-collections")
+    public JsonResponse<String> deleteVideoCollection(@RequestParam Long videoId){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.deleteVideoCollection(videoId, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查询视频收藏数量
+     */
+    @GetMapping("/video-collections")
+    public JsonResponse<Map<String, Object>> getVideoCollections(@RequestParam Long videoId){
+        Long userId = null;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch (Exception ignored){}
+        Map<String, Object> result = videoService.getVideoCollections(videoId, userId);
+        return new JsonResponse<>(result);
+    }
+
+    /**
+     * 视频投币
+     */
+    @PostMapping("/video-coins")
+    public JsonResponse<String> addVideoCoins(@RequestBody VideoCoin videoCoin){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.addVideoCoins(videoCoin, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查询视频投币数量
+     */
+    @GetMapping("/video-coins")
+    public JsonResponse<Map<String, Object>> getVideoCoins(@RequestParam Long videoId){
+        Long userId = null;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch (Exception ignored){}
+        Map<String, Object> result = videoService.getVideoCoins(videoId, userId);
+        return new JsonResponse<>(result);
+    }
+
 }
