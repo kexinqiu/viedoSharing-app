@@ -263,5 +263,14 @@
             order by id
     </select>
 
+    <select id="getVideoDetails" parameterType="java.lang.Long" resultType="com.pilipili.app.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id = #{id}
+    </select>
+
 
 </mapper>

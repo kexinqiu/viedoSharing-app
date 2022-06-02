@@ -56,6 +56,8 @@ public interface VideoDao {
 
     List<VideoComment> batchGetVideoCommentsByRootIds(@Param("rootIdList") List<Long> rootIdList);
 
+    Video getVideoDetails(Long videoId);
+
 //    Video getVideoDetails(Long videoId);
 //
 //    Integer addVideoView(VideoView videoView);

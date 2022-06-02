@@ -240,4 +240,17 @@ public class VideoService {
         return new PageResult<>(total, list);
     }
 
+    public Map<String, Object> getVideoDetails(Long videoId) {
+        Video video =  videoDao.getVideoDetails(videoId);
+        Long userId = video.getUserId();
+        User user = userService.getUserInfo(userId);
+        UserInfo userInfo = user.getUserInfo();
+        Map<String, Object> result = new HashMap<>();
+        result.put("video", video);
+        result.put("userInfo", userInfo);
+        return result;
+    }
+
+
+
 }

@@ -124,8 +124,8 @@ public class UserService {
         userDao.updateUserInfos(userInfo);
     }
 
-    public User getUserById(Long followingId) {
-        return userDao.getUserById(followingId);
+    public User getUserById(Long id) {
+        return userDao.getUserById(id);
     }
 
     public List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList) {
