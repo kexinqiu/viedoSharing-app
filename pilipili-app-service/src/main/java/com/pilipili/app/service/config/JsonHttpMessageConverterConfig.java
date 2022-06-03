@@ -8,8 +8,10 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 //该注解使得springboot启动后将其注入到上下文中,配置生效
@@ -43,8 +45,8 @@ public class JsonHttpMessageConverterConfig {
                 SerializerFeature.DisableCircularReferenceDetect
         );
         fastConverter.setFastJsonConfig(fastJsonConfig);
-        //如果使用feign进行微服务间的接口调用，则需要加上该配置
-        //fastConverter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_JSON));
+        //如果使用feign进行微服务间的接口调用（不同类型的参数），则需要加上该配置
+        fastConverter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_JSON));
         return new HttpMessageConverters(fastConverter);
     }
 }

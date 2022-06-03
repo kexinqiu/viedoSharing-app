@@ -1,22 +1,30 @@
 package com.pilipili.app.domain;
 
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import java.util.Date;
 import java.util.List;
 
-//@Document(indexName = "videos")
+//用于es
+@Document(indexName = "videos")
 public class Video {
-    //@Id
+
+    @Id
     private Long id;
 
-    //@Field(type = FieldType.Long)
+    @Field(type = FieldType.Long)
     private Long userId;//用户id
 
     private String url; //视频链接
 
     private String thumbnail;//封面
 
-    //@Field(type = FieldType.Text)
+    //es的类型，text是开进行拆分的，可扩大搜索范围
+    @Field(type = FieldType.Text)
     private String title; //标题
 
     private String type;// 0自制 1转载
@@ -27,13 +35,13 @@ public class Video {
 
     private List<VideoTag> videoTagList;//标签列表
 
-   // @Field(type = FieldType.Text)
+   @Field(type = FieldType.Text)
     private String description;//简介
 
-    //@Field(type = FieldType.Date)
+    @Field(type = FieldType.Date)
     private Date createTime;
 
-    //@Field(type = FieldType.Date)
+    @Field(type = FieldType.Date)
     private Date updateTime;
 
     public Long getId() {

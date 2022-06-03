@@ -8,12 +8,14 @@ import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 
+
 @Configuration
 public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
 
     @Value("${elasticsearch.url}")
     private String esUrl;
 
+    //用于操作es
     @Override
     @Bean
     public RestHighLevelClient elasticsearchClient(){

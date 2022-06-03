@@ -7,16 +7,16 @@
     <insert id="addVideos" parameterType="com.pilipili.app.domain.Video" useGeneratedKeys="true" keyProperty="id">
         insert into
             t_video(
-            id,
-            userId,
-            url,
-            thumbnail,
-            title,
-            `type`,
-            duration,
-            area,
-            description,
-            createTime
+                id,
+                userId,
+                url,
+                thumbnail,
+                title,
+                `type`,
+                duration,
+                area,
+                description,
+                createTime
         )values(
                    #{id},
                    #{userId},
@@ -272,5 +272,63 @@
             id = #{id}
     </select>
 
+    <select id="getVideoViewCounts" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video_view
+        where
+            videoId = #{videoId}
+    </select>
+
+    <select id="getVideoView" parameterType="java.util.Map" resultType="com.pilipili.app.domain.VideoView">
+        select
+            *
+        from
+            t_video_view
+            where
+        videoId = #{videoId}
+        <if test="userId == null and clientId != null">
+            and clientId = #{clientId} and userId is null
+        </if>
+        <if test="userId != null">
+            and userId = #{userId}
+        </if>
+        <if test="ip != null and ip != '' ">
+            and ip = #{ip}
+        </if>
+        <if test="today != null and today != '' ">
+            and DATE_FORMAT(createTime,'%Y-%m-%d') = #{today}
+        </if>
+    </select>
+
+    <select id="getAllUserPreference" resultType="com.pilipili.app.domain.UserPreference">
+        select
+            userId,
+            videoId,
+            sum(case operationType
+                    when '0' then 6
+                    when '1' then 2
+                    when '2' then 2
+                    else 0 end
+                ) as `value`
+        from
+            t_video_operation
+        group by userId, videoId
+        order by userId
+    </select>
+
+    <select id="batchGetVideosByIds" resultType="com.pilipili.app.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id in
+            <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            order by id
+    </select>
 
 </mapper>
