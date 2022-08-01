@@ -1,4 +1,4 @@
-# pilipili-app
+# Video sharing and social media platform
 
 Pilipili is a video sharing website that makes it easy to watch online videos. Users can watch, upload videos to share with others. Users can also comment, save, tip videos and send "bullet screen".
 
